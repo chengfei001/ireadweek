@@ -27,17 +27,11 @@ class IndexSpider(scrapy.Spider):
         urls_list = re.findall(re.compile(r"/index.php/bookInfo/\d+.html"), html)
         # print(urls_list)
         full_urls_list = [self.base_url + url for url in urls_list]  # 完整列表
-        n = 1
+        # n = 1
         for url in full_urls_list:
             # print(full_urls_list)
             if url.find('8822.html') == -1 and url.find('1503.html') == -1:
-                # print(url)
                 yield scrapy.Request(url, callback=self.parse_url)
-                # if n < 2:
-                #     yield scrapy.Request(url, callback=self.parse_url)
-                # else:
-                #     break
-                # n += 1
         pass
 
     def parse_url(self, response):
@@ -64,7 +58,10 @@ class IndexSpider(scrapy.Spider):
                 content_text = content_item
 
 
-        item['src_img'] = self.base_url+selector.xpath('//div[@class="hanghang-shu-content-img"]/img/@src')[0].extract()
+        if selector.xpath('//div[@class="hanghang-shu-content-img"]/img/@src')[0].extract().startswith('http://'):
+            item['src_img'] = selector.xpath('//div[@class="hanghang-shu-content-img"]/img/@src')[0].extract()
+        else:
+            item['src_img'] = self.base_url+selector.xpath('//div[@class="hanghang-shu-content-img"]/img/@src')[0].extract()
         item['book_img'] = (item['src_img'])[item['src_img'].rfind('/')+1:len(item['src_img'])]
         item['content'] = content_text
         item['baidu_url'] = selector.xpath('//a[@class="downloads"]/@href').extract()
@@ -80,3 +77,5 @@ class IndexSpider(scrapy.Spider):
         pic.close()
 
         yield item
+
+
