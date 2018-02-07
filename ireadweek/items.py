@@ -20,3 +20,12 @@ class IreadweekItem(scrapy.Item):
     book_img = scrapy.Field()
     src_img = scrapy.Field()
     pass
+
+class IreadweekUrlItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
+    book_name = scrapy.Field()
+    book_author = scrapy.Field()
+    book_url = scrapy.Field()
+    book_download_num = scrapy.Field()
+    pass

@@ -75,7 +75,6 @@ class IndexSpider(scrapy.Spider):
         pic = open(self.file_path + item['book_img'], 'wb')
         pic.write(img_req.content)
         pic.close()
-
         yield item
 
 
