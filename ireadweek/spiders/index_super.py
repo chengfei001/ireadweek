@@ -11,47 +11,50 @@ class IndexSpider(scrapy.Spider):
     name = 'index_super'
     allowed_domains = ['ireadweek.com']
     base_url = 'http://www.ireadweek.com'
-    start_urls = ['http://www.ireadweek.com']
+    start_urls = ['http://www.ireadweek.com/index.php/index/194.html']
 
     def __init__(self):
-        self.client = MongoClient(host='locahost',port=27017)
-        self.db = self.client.ireadweek
-        self.book = self.db.books
-        self.book_url = self.db.book_url
+        # self.client = MongoClient(host='locahost',port=27017)
+        # self.db = self.client.ireadweek
+        # self.book = self.db.books
+        # self.book_url = self.db.book_url
+        self.author_flag = '作者：'
+        self.classify_flag = '分类：'
+        self.content_flag = '简介：'
 
     def parse(self, response):
         # selector = Selector(response)
         # 获取下一页的链接
-        url = self.base_url + response.xpath(
-            '//nav[@class="action-pagination"]/ul/li[a/text()="下一页>>"]/a/@href').extract_first()
-        # yield scrapy.Request(url, callback=self.parse)
+        next_page = response.xpath('//nav[@class="action-pagination"]/ul/li[a/text()="下一页>>"]/a/@href')
+        if(len(next_page)>0):
+            url = self.base_url + next_page.extract_first()
+            yield scrapy.Request(url, callback=self.parse)
 
         # urls_list = response.xpath('//nav[@class="action-pagination"]/ul/li[a/text()="下一页>>"]/a/@href').extract()
         # 获取列表链接 书名 下载量 作者
         selector = response.xpath('//ul[@class="hanghang-list"]/a')
+        # i = 0
         for selector_item in selector:
             urlItem = IreadweekUrlItem()
             # book_item = {}
             # 书名
-            urlItem['book_name'] = selector_item.xpath('li/div[@class="hanghang-list-name"]/text()').extract()
+            urlItem['book_name'] = selector_item.xpath('li/div[@class="hanghang-list-name"]/text()').extract_first()
             # response.xpath('//ul[@class="hanghang-list"]/a/li/div[@class="hanghang-list-name/text()"]').extract()
             # 下载量
-            urlItem['book_download_num'] = selector_item.xpath('li/div[@class="hanghang-list-num"]/text()').extract()
+            urlItem['book_download_num'] = selector_item.xpath('li/div[@class="hanghang-list-num"]/text()').extract_first()
             # 作者
-            urlItem['book_author'] = selector_item.xpath('li/div[@class="hanghang-list-zuozhe"]/text()').extract()
+            urlItem['book_author'] = selector_item.xpath('li/div[@class="hanghang-list-zuozhe"]/text()').extract_first()
             # 图书详细链接
             urlItem['book_url'] = self.base_url + selector_item.xpath('@href').extract_first()
             yield urlItem
             # print(IreadweekUrlItem)
-            # for url in urls_list:
-            #     self.book_url.insert()
-            # yield scrapy.Request(url, callback=self.parse)
-            break
-            # yield scrapy.Request(url, callback=self.parse_url)
+            if urlItem['book_url'].find('8822.html') == -1 and urlItem['book_url'].find('1503.html') == -1:
+                yield scrapy.Request(urlItem['book_url'], callback=self.parse_book)
+
             # pass
 
     # 抓取列表
-    def parese_book(self, response):
+    def parse_book(self, response):
         item = IreadweekItem()
         selector = Selector(response)
         all_content = selector.xpath("//div[@class='hanghang-shu-content-font']")
@@ -82,7 +85,7 @@ class IndexSpider(scrapy.Spider):
                 0].extract()
         item['book_img'] = (item['src_img'])[item['src_img'].rfind('/') + 1:len(item['src_img'])]
         item['content'] = content_text
-        item['baidu_url'] = selector.xpath('//a[@class="downloads"]/@href').extract()
+        item['baidu_url'] = selector.xpath('//a[@class="downloads"]/@href').extract_first()
         item['src_url'] = response.url
         item['book_name'] = selector.xpath('//div[@class="hanghang-za-title"]/text()').extract_first()
 
