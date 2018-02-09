@@ -24,13 +24,13 @@ class DownLoadImg:
 
     # def download_img(self):
     #     book_itmes = self.book.find({})
-        book_itmes = self.book.find({'_id': {'$gte': ObjectId('5a7bf59a8ce81312be57c3ee')}})
+        book_itmes = self.book.find({'_id': {'$gte': ObjectId('5a7bfa8b8ce81312be57d2e4')}})
 
         x = 0
         for book in book_itmes:
             x += 1
             print(str(book['_id']) + ' '+str(x)+'.'+book['book_name']+' '+book['src_img'])
-            if book['src_img'] !=  'http://www.ireadweek.com':
+            if book['src_img'] != '':
                 self.get_img(book['book_img'], book['src_img'])
         pass
     def get_img(self,img,url):
@@ -38,7 +38,6 @@ class DownLoadImg:
         isExists = os.path.exists(path)
         if not isExists:
             os.makedirs(path)
-
         if self.i <= 50:
             self.i += 1
         else:
