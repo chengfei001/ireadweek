@@ -44,7 +44,6 @@ class DownLoadImg:
             self.i = 0
             time.sleep(5)
         response = get(url=url, headers=self.headers)
-
         pic = open(path + '/' + img, 'wb')
         pic.write(response.content)
         pic.close()
