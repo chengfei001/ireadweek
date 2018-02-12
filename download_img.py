@@ -22,9 +22,9 @@ class DownLoadImg:
   'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
 }
 
-    # def download_img(self):
-    #     book_itmes = self.book.find({})
-        book_itmes = self.book.find({'_id': {'$gte': ObjectId('5a7bfa8b8ce81312be57d2e4')}})
+    def download_img(self):
+        book_itmes = self.book.find({})
+        # book_itmes = self.book.find({'_id': {'$gte': ObjectId('5a7c007e8ce813133b4fdadb')}})
 
         x = 0
         for book in book_itmes:
